@@ -76,7 +76,7 @@ goto :eof
 :run_tests
     echo Running all unit tests...
     set PYTHONPATH=.\src
-    %poetry_cmd% run python -m unittest discover -s test_ugraph "*.py"
+    %poetry_cmd% python -m unittest discover -s test_ugraph
     goto :eof
 
 :usage
