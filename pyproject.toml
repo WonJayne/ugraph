@@ -1,12 +1,17 @@
 [tool.poetry]
 name = "ugraph"
-version = "0.0.420"
+version = "0.0.421"
 description = ""
 authors = [
     "flfuchs <flfuchs@student.ethz.ch>",
     "Thomas Dubach <thomas.dubach@ivt.baug.ethz.ch>"
 ]
 readme = "README.md"
+repository = "https://github.com/WonJayne/ugraph"
+homepage = "https://github.com/WonJayne/ugraph"
+documentation = "https://github.com/WonJayne/ugraph/blob/main/README.md"
+keywords = ["graphs", "igraph", "typed-graphs", "visualization"]
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -15,7 +20,7 @@ pycairo = "1.21.0" # on purpose, as there is a known bug on newer versions
 plotly = { version = "^5.24.1", optional = true }
 
 [tool.poetry.extras]
-plotting = ["plotly", "kaleido"]
+plotting = ["plotly"]
 
 [build-system]
 requires = ["poetry-core"]
