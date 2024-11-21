@@ -3,7 +3,8 @@ from collections import defaultdict
 from ugraph import MutableNetworkABC, NodeIndex
 from usage.state_network.link import StateLink, StateLinkType
 from usage.state_network.node import StateNode, StateNodeType
-from usage.utils.result import Result
+
+from ._utils.result import Result
 
 
 class StateNetwork(MutableNetworkABC[StateNode, StateLink, StateNodeType, StateLinkType]):

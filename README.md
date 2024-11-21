@@ -30,6 +30,7 @@ pip install ugraph
 Generally, `ugraph` can be used as a replacement for `igraph`. The main difference is that `ugraph` allows you to define custom classes for nodes and links in a graph.
 This is useful when you want to store additional information about nodes and links in a graph. Since you are using custom classes (dataclasses) you can benefit from type hints and IDE autocompletion, as well as type checking.
 
+There are some examples on how to use `ugraph` in the [usage](https://github.com/WonJayne/ugraph/tree/main/src/usage) directory.
 
 #### Credits
 

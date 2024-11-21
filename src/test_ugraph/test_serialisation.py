@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from ugraph import UGraphDecoder, UGraphEncoder
-from usage.example import create_example_rail_network
+from usage.create_example_network import create_example_state_railway_network
 from usage.state_network import StateNetwork
 
 
@@ -19,7 +19,7 @@ class TestUgraphSerializer(unittest.TestCase):
         self.setUp()
 
     def test_full_cycle(self) -> None:
-        graph = create_example_rail_network()
+        graph = create_example_state_railway_network()
 
         with open("test_serialisation.json", "w") as f:
             json.dump(graph, f, cls=UGraphEncoder)
@@ -33,7 +33,7 @@ class TestUgraphSerializer(unittest.TestCase):
         self.assertEqual(graph.all_links, loaded.all_links)
 
     def test_full_cycle_with_classmethods(self):
-        graph = create_example_rail_network()
+        graph = create_example_state_railway_network()
 
         graph.write_json(Path(f"{graph.__class__.__name__}.json"))
 

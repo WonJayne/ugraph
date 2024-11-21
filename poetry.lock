@@ -646,7 +646,10 @@ files = [
     {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},
 ]
 
+[extras]
+plotting = ["plotly"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "314f1a588c306d982f17dcba9b25b4d32081ac03cc630ce3c68d60e5b7c10712"
+content-hash = "0a07affef934fb99478bacec85a1b020db6282cf20b5e2f8ebe48592363f4608"

@@ -10,7 +10,7 @@ BACKWARD_OFFSET = 10
 AGENT_Z = 40
 
 
-def create_example_rail_network() -> StateNetwork:
+def create_example_state_railway_network() -> StateNetwork:
     """
          6 7
          - -
@@ -102,7 +102,7 @@ def create_example_rail_network() -> StateNetwork:
 
 
 if __name__ == "__main__":
-    network = create_example_rail_network()
+    network = create_example_state_railway_network()
     color_map = ColorMap(
         {
             StateNodeType.RESOURCE.name: "green",

@@ -283,8 +283,8 @@ def dataclass_from_dict(cls: type, data: dict[str, Any | None] | Any) -> Any:
         else:
             # Handle non-ellipsis types normally
             result[_type] = (
-                dataclass_from_dict(field_types[_type], data[_type]) if _type in data else None
-            )  # type: ignore
+                dataclass_from_dict(field_types[_type], data[_type]) if _type in data else None  # type: ignore
+            )
     return cls(**result)
 
 

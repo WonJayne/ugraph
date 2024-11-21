@@ -1,12 +1,12 @@
 import unittest
 
-from usage.example import create_example_rail_network
+from usage.create_example_network import create_example_state_railway_network
 
 
 class TestIntegration(unittest.TestCase):
     def test_integration(self) -> None:
         # Create a new graph
-        graph = create_example_rail_network()
+        graph = create_example_state_railway_network()
 
         self.assertEqual(graph.l_count, 32)
         self.assertEqual(graph.n_count, 24)

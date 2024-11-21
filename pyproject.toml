@@ -1,23 +1,25 @@
 [tool.poetry]
 name = "ugraph"
-version = "0.0.69"
+version = "0.0.420"
 description = ""
 authors = [
     "flfuchs <flfuchs@student.ethz.ch>",
     "Thomas Dubach <thomas.dubach@ivt.baug.ethz.ch>"
 ]
-
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
 igraph = "^0.11.8"
 pycairo = "1.21.0" # on purpose, as there is a known bug on newer versions
+plotly = { version = "^5.24.1", optional = true }
+
+[tool.poetry.extras]
+plotting = ["plotly", "kaleido"]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
