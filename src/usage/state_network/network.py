@@ -45,7 +45,7 @@ def _validate_topology(state_network: StateNetwork) -> Result[bool, str]:
     return _validate_network_incidence(state_network)
 
 
-def _validate_network_incidence(state_network):
+def _validate_network_incidence(state_network: StateNetwork) -> Result[bool, str]:
     infra_only = state_network.reduce_to_transition_network()
     for component in infra_only.weak_components():
         if not component.underlying_digraph.is_dag():
@@ -65,7 +65,7 @@ def _validate_network_incidence(state_network):
     return Result.from_success(True)
 
 
-def _validate_node_incidence(state_network):
+def _validate_node_incidence(state_network: StateNetwork) -> Result[bool, str]:
     outgoing_links = defaultdict(list)
     incoming_links = defaultdict(list)
     for (s, t), link in state_network.link_by_tuple_iterator():

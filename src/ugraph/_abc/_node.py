@@ -5,12 +5,28 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from enum import IntEnum, unique
 from statistics import mean
-from typing import NewType, Type, TypeVar
+from typing import Generic, NewType, Type, TypeVar
 
 NodeId = NewType("NodeId", str)
 ClusterId = NodeId
 EndNodeIds = NewType("EndNodeIds", tuple[NodeId, ...])
 NodeIndex = NewType("NodeIndex", int)
+
+
+@unique
+class BaseNodeType(IntEnum):
+    pass
+
+
+NodeT = TypeVar("NodeT", bound=BaseNodeType)
+
+
+@dataclass(frozen=True, slots=True)
+class NodeABC(ABC, Generic[NodeT]):
+    id: NodeId
+    coordinates: ThreeDCoordinates
+    node_type: NodeT
+
 
 T = TypeVar("T", bound="ThreeDCoordinates")
 
@@ -30,18 +46,6 @@ class ThreeDCoordinates:
     @classmethod
     def create_mean_location_coordinates(cls: Type[T], coordinates: Collection[ThreeDCoordinates]) -> T:
         return cls(mean(c.x for c in coordinates), mean(c.y for c in coordinates), mean(c.z for c in coordinates))
-
-
-@unique
-class BaseNodeType(IntEnum):
-    pass
-
-
-@dataclass(frozen=True, slots=True)
-class NodeABC(ABC):
-    id: NodeId
-    coordinates: ThreeDCoordinates
-    node_type: BaseNodeType
 
 
 def node_distance(n_1: NodeABC, n_2: NodeABC) -> float:

@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 from enum import IntEnum, unique
-from typing import NewType
+from typing import Generic, NewType, TypeVar
 
 from ugraph._abc._node import NodeId
 
@@ -13,11 +13,9 @@ class BaseLinkType(IntEnum):
     pass
 
 
+LinkT = TypeVar("LinkT", bound="LinkABC")
+
+
 @dataclass(frozen=True, slots=True)
-class LinkABC(ABC):
-    link_type: BaseLinkType
-
-
-@unique
-class SpeedCategory(IntEnum):
-    pass
+class LinkABC(Generic[LinkT], ABC):
+    link_type: LinkT
