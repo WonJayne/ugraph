@@ -6,7 +6,9 @@ from typing import AbstractSet, TypeVar
 import igraph
 
 from ugraph._abc._immutablenetwork import (
-    VERTEX_NAME_IN_GRAPH,
+    LINK_ATTRIBUTE_KEY,
+    NODE_ATTRIBUTE_KEY,
+    VERTEX_NAME_KEY,
     ImmutableNetworkABC,
     LinkIndex,
     LinkT,
@@ -38,15 +40,13 @@ class MutableNetworkABC(ImmutableNetworkABC[NodeT, LinkT, NodeTypeT, LinkTypeT],
         return _add_links(self, links_to_add)  # type: ignore
 
     def append_(self, network_to_append: ImmutableNetworkABC[NodeT, LinkT, NodeTypeT, LinkTypeT]) -> None:
-        assert self.node_attribute_name == network_to_append.node_attribute_name
-        assert self.link_attribute_name == network_to_append.link_attribute_name
         _append_to_network(self, network_to_append)
 
     def replace_node(self, index: NodeIndex, updated: NodeT, renamed: bool = False) -> None:
         _replace_node(self, index, updated, renamed)
 
     def replace_link(self, index: LinkIndex, new_link: LinkT) -> None:
-        self._underlying_digraph.es[index][self.link_attribute_name] = new_link
+        self._underlying_digraph.es[index][LINK_ATTRIBUTE_KEY] = new_link
 
     def remove_isolated_nodes(self) -> None:
         self._underlying_digraph.delete_vertices(self._underlying_digraph.vs.select(_degree=0))
@@ -86,11 +86,10 @@ class MutableNetworkABC(ImmutableNetworkABC[NodeT, LinkT, NodeTypeT, LinkTypeT],
 def _add_nodes(network: MutableNetworkABC, nodes: Mapping[NodeId, NodeT] | Collection[NodeT]) -> None:
     v_count_before = network.underlying_digraph.vcount()
     network.underlying_digraph.add_vertices(len(nodes))
-    node_attr_name = network.node_attribute_name
-    iterator_ = nodes.items() if isinstance(nodes, Mapping) else ((node.id, node) for node in nodes)  # mypy: ignore
+    iterator_ = nodes.items() if isinstance(nodes, Mapping) else ((node.id, node) for node in nodes)  # type: ignore
     for i, (node_id, node) in enumerate(iterator_, start=v_count_before):
-        network.underlying_digraph.vs[i][node_attr_name] = node
-        network.underlying_digraph.vs[i][VERTEX_NAME_IN_GRAPH] = node_id
+        network.underlying_digraph.vs[i][NODE_ATTRIBUTE_KEY] = node
+        network.underlying_digraph.vs[i][VERTEX_NAME_KEY] = node_id
 
 
 def _add_links(mutable_network: MutableNetworkABC, links_to_add: Collection[tuple[EndNodeIdPair, LinkT]]) -> None:
@@ -99,9 +98,8 @@ def _add_links(mutable_network: MutableNetworkABC, links_to_add: Collection[tupl
     end_nodes, links = zip(*links_to_add)
     e_count_before = mutable_network.underlying_digraph.ecount()
     mutable_network.underlying_digraph.add_edges(end_nodes)
-    link_name = mutable_network.link_attribute_name
     for i, link in enumerate(links, start=e_count_before):
-        mutable_network.underlying_digraph.es[i][link_name] = link
+        mutable_network.underlying_digraph.es[i][LINK_ATTRIBUTE_KEY] = link
 
 
 def _append_to_network(
@@ -123,14 +121,14 @@ def _append_to_network(
 
 
 def _replace_node(network: MutableNetworkABC, index: NodeIndex, new_node: NodeT, renamed: bool) -> None:
-    if network.underlying_digraph.vs[index][VERTEX_NAME_IN_GRAPH] != new_node.id:
+    if network.underlying_digraph.vs[index][VERTEX_NAME_KEY] != new_node.id:
         if not renamed:
             raise ValueError(
-                f"Node id mismatch: {network.underlying_digraph.vs[index][VERTEX_NAME_IN_GRAPH]} != {new_node.id}"
+                f"Node id mismatch: {network.underlying_digraph.vs[index][VERTEX_NAME_KEY]} != {new_node.id}"
             )
-        assert new_node.id not in set(network.underlying_digraph.vs[VERTEX_NAME_IN_GRAPH]), f"{new_node.id=} not unique"
-        network.underlying_digraph.vs[index][VERTEX_NAME_IN_GRAPH] = new_node.id
-    network.underlying_digraph.vs[index][network.node_attribute_name] = new_node
+        assert new_node.id not in set(network.underlying_digraph.vs[VERTEX_NAME_KEY]), f"{new_node.id=} not unique"
+        network.underlying_digraph.vs[index][VERTEX_NAME_KEY] = new_node.id
+    network.underlying_digraph.vs[index][NODE_ATTRIBUTE_KEY] = new_node
 
 
 def _delete_nodes_without_event_type(self: MutableNetworkABC, types: Iterable[BaseNodeType]) -> None:
