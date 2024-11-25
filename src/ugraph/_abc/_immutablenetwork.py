@@ -210,7 +210,6 @@ class ImmutableNetworkEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:
         if isinstance(o, igraph.Graph):
             igraph_dict = _serialize_igraph(o)
-            igraph_dict["edge_attrs"] = {str(k): v for k, v in igraph_dict["edge_attrs"].items()}
             igraph_dict["__class__"] = "igraph.Graph"
             return igraph_dict
         if isinstance(o, NodeABC | LinkABC):
@@ -292,24 +291,20 @@ def _serialize_igraph(graph: igraph.Graph) -> dict[str, Any]:
         "node_count": graph.vcount(),
         "edges": graph.get_edgelist(),
         "attributes": {key: graph[key] for key in graph.attributes()},
-        "vertex_attrs": {v.index: v.attributes() for v in graph.vs},
-        "edge_attrs": {e.tuple: e.attributes() for e in graph.es},
+        "vertex_attrs": [v.attributes() for v in graph.vs],
+        "edge_attrs": [e.attributes() for e in graph.es],
         "is_directed": graph.is_directed(),
     }
 
 
 def _deserialize_igraph(data: dict[str, Any]) -> igraph.Graph:
-    edge_attr_keys = next(iter(data["edge_attrs"].values())).keys() if data["edge_attrs"] else []
-    edge_attrs = {k: [d[k] for d in data["edge_attrs"].values()] for k in edge_attr_keys}
-
-    vertex_attr_keys = next(iter(data["vertex_attrs"].values())).keys() if data["vertex_attrs"] else []
-    vertex_attrs = {k: [d[k] for d in data["vertex_attrs"].values()] for k in vertex_attr_keys}
-
+    edge_attr_keys = next(iter(data["edge_attrs"])).keys() if data["edge_attrs"] else []
+    vertex_attr_keys = next(iter(data["vertex_attrs"])).keys() if data["vertex_attrs"] else []
     return igraph.Graph(
         n=data["node_count"],
         edges=data["edges"],
         directed=data["is_directed"],
         graph_attrs=data["attributes"],
-        edge_attrs=edge_attrs,
-        vertex_attrs=vertex_attrs,
+        edge_attrs={k: [d[k] for d in data["edge_attrs"]] for k in edge_attr_keys},
+        vertex_attrs={k: [d[k] for d in data["vertex_attrs"]] for k in vertex_attr_keys},
     )
