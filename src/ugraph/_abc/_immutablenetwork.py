@@ -261,6 +261,12 @@ def _dataclass_from_dict(cls: type, data: dict[str, Any | None] | Any) -> Any:
         supertype = cls.__supertype__
         return cls(_dataclass_from_dict(supertype, data))
 
+    # handle Literal types
+    if get_origin(cls) is Literal:
+        if data in get_args(cls):
+            return data  # Valid literal value
+        raise ValueError(f"Value {data} is not a valid Literal for {cls}")
+
     # handle non dataclass types
     if not is_dataclass(cls):
         if isinstance(data, igraph.Graph) or data is None:
