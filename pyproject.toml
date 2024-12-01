@@ -61,7 +61,6 @@ check_untyped_defs = "True"
 warn_redundant_casts = "True"
 no_implicit_optional = "True"
 strict_optional = "True"
-html_report = "mypy_report"
 
 [tool.pylint]
 ignore = "CVS"

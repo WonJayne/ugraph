@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Hashable, NewType
+from typing import Hashable, Literal, NewType
 
 from plotly.graph_objs import Scatter3d
 
@@ -15,11 +15,25 @@ from ugraph import BaseLinkType, BaseNodeType, ImmutableNetworkABC, NodeABC, Nod
 ColorMap = NewType("ColorMap", dict[Hashable, str])
 
 
+class PlotOptions:
+    add_arrow: bool = True
+    arrow_width: int = 2
+    node_size: int = 2
+    node_shape: str = "circle"
+    edge_width: int = 6
+    edge_dash: Literal["solid", "dash", "dot", "longdash", "dashdot", "longdashdot"] = "solid"
+    edge_opacity: float = 1.0
+
+
 def add_3d_ugraph_to_figure(
-    network: ImmutableNetworkABC, color_map: ColorMap, figure: go.Figure | None = None
+    network: ImmutableNetworkABC,
+    color_map: ColorMap,
+    options: PlotOptions | None = None,
+    figure: go.Figure | None = None,
 ) -> go.Figure:
     figure = figure if figure is not None else go.Figure()
-    figure.add_traces(data=_compute_graph_traces(network, color_map))
+    options = options if options is not None else PlotOptions()
+    figure.add_traces(data=_compute_graph_traces(network, color_map, options))
     figure.update_layout(
         scene={"xaxis_title": "X [Coordinates]", "yaxis_title": "Y [Coordinates]", "zaxis_title": "Z [Coordinates]"},
         font={"family": "Helvetica", "size": 12, "color": "black"},
@@ -27,36 +41,26 @@ def add_3d_ugraph_to_figure(
     return figure
 
 
-def _compute_graph_traces(network: ImmutableNetworkABC, color_map: ColorMap) -> list[go.Scatter3d]:
+def _compute_graph_traces(
+    network: ImmutableNetworkABC, color_map: ColorMap, options: PlotOptions
+) -> list[go.Scatter3d]:
     nodes_by_id = {node.id: node for node in network.all_nodes}
-    return (
-        _create_edge_traces(color_map, network, nodes_by_id)
-        + _create_node_traces(color_map, network)
-        + _create_arrow_traces(color_map, network, nodes_by_id)
+    base_traces = _create_edge_traces(color_map, network, nodes_by_id, options) + _create_node_traces(
+        color_map, network, options
     )
+    if not options.add_arrow:
+        return base_traces
+    return base_traces + _create_arrow_traces(color_map, network, nodes_by_id, options)
 
 
 def _create_arrow_traces(
-    color_map: ColorMap, network: ImmutableNetworkABC, nodes_by_id: dict[NodeId, NodeABC]
+    color_map: ColorMap, network: ImmutableNetworkABC, nodes_by_id: dict[NodeId, NodeABC], options: PlotOptions
 ) -> list[go.Cone]:
     arrow_traces = []
-    for end_node_pair, link in network.link_by_end_node_iterator():
-        s_node = nodes_by_id[end_node_pair[0]]
-        t_node = nodes_by_id[end_node_pair[1]]
-
-        # Vector components for the arrow direction
-        arrow_vector = [
-            t_node.coordinates.x - s_node.coordinates.x,
-            t_node.coordinates.y - s_node.coordinates.y,
-            t_node.coordinates.z - s_node.coordinates.z,
-        ]
-
-        # Arrow starting point (at the mid-point of the edge for better clarity)
-        mid_point = [
-            (s_node.coordinates.x + t_node.coordinates.x) / 2,
-            (s_node.coordinates.y + t_node.coordinates.y) / 2,
-            (s_node.coordinates.z + t_node.coordinates.z) / 2,
-        ]
+    for (s_idx, t_idx), link in network.link_by_end_node_iterator():
+        s_cords, t_cords = nodes_by_id[s_idx].coordinates, nodes_by_id[t_idx].coordinates
+        arrow_vector = [t_cords.x - s_cords.x, t_cords.y - s_cords.y, t_cords.z - s_cords.z]
+        mid_point = [(s_cords.x + t_cords.x) * 0.5, (s_cords.y + t_cords.y) * 0.5, (s_cords.z + t_cords.z) * 0.5]
 
         arrow_traces.append(
             go.Cone(
@@ -67,7 +71,7 @@ def _create_arrow_traces(
                 v=[arrow_vector[1]],
                 w=[arrow_vector[2]],
                 sizemode="absolute",
-                sizeref=4,  # Adjust the size of the arrows
+                sizeref=options.arrow_width,
                 anchor="tail",
                 colorscale=[[0, color_map[link.link_type]], [1, color_map[link.link_type]]],
                 showscale=False,
@@ -78,7 +82,7 @@ def _create_arrow_traces(
     return arrow_traces
 
 
-def _create_node_traces(color_map: ColorMap, network: ImmutableNetworkABC) -> list[Scatter3d]:
+def _create_node_traces(color_map: ColorMap, network: ImmutableNetworkABC, options: PlotOptions) -> list[Scatter3d]:
     nodes_by_type: dict[BaseNodeType, dict[str, list[float | str | None]]] = defaultdict(
         lambda: {_key: [] for _key in ["node_x", "node_y", "node_z", "node_name"]}
     )
@@ -98,14 +102,19 @@ def _create_node_traces(color_map: ColorMap, network: ImmutableNetworkABC) -> li
             mode="markers",
             hoverinfo="x+y+z+text",
             legendgroup=node_type.name,
-            marker={"size": 25, "line_width": 0, "color": color_map[node_type]},
+            marker={
+                "size": options.node_size,
+                "line_width": options.node_size * 0.1,
+                "color": color_map[node_type],
+                "symbol": options.node_shape,
+            },
         )
         for node_type, nodes in nodes_by_type.items()
     ]
 
 
 def _create_edge_traces(
-    color_map: ColorMap, network: ImmutableNetworkABC, nodes_by_id: dict[NodeId, NodeABC]
+    color_map: ColorMap, network: ImmutableNetworkABC, nodes_by_id: dict[NodeId, NodeABC], options: PlotOptions
 ) -> list[Scatter3d]:
     edges_by_type: dict[BaseLinkType, dict[str, list[float | str | None]]] = defaultdict(
         lambda: {_key: [] for _key in ["edge_x", "edge_y", "edge_z", "edge_line_name", "info"]}
@@ -113,16 +122,11 @@ def _create_edge_traces(
     for end_node_pair, link in network.link_by_end_node_iterator():
         s_node = nodes_by_id[end_node_pair[0]]
         t_node = nodes_by_id[end_node_pair[1]]
+        s_cords, t_cords = s_node.coordinates, t_node.coordinates
         _type = link.link_type
-        edges_by_type[_type]["edge_x"].extend(
-            (s_node.coordinates.x, (t_node.coordinates.x + s_node.coordinates.x) / 2, t_node.coordinates.x, None)
-        )
-        edges_by_type[_type]["edge_y"].extend(
-            (s_node.coordinates.y, (t_node.coordinates.y + s_node.coordinates.y) / 2, t_node.coordinates.y, None)
-        )
-        edges_by_type[_type]["edge_z"].extend(
-            (s_node.coordinates.z, (t_node.coordinates.z + s_node.coordinates.z) / 2, t_node.coordinates.z, None)
-        )
+        edges_by_type[_type]["edge_x"].extend((s_cords.x, (t_cords.x + s_cords.x) * 0.5, t_cords.x, None))
+        edges_by_type[_type]["edge_y"].extend((s_cords.y, (t_cords.y + s_cords.y) * 0.5, t_cords.y, None))
+        edges_by_type[_type]["edge_z"].extend((s_cords.z, (t_cords.z + s_cords.z) * 0.5, t_cords.z, None))
         text = f"S:{s_node.id} T:{t_node.id},<br>link_type:{link.link_type}"
         edges_by_type[_type]["info"].extend((text, text, text, None))
     return [
@@ -130,11 +134,11 @@ def _create_edge_traces(
             x=edges["edge_x"],
             y=edges["edge_y"],
             z=edges["edge_z"],
-            line={"width": 6, "color": color_map[edge_type]},
+            line={"width": options.edge_width, "color": color_map[edge_type], "dash": options.edge_dash},
             mode="lines",
             name=edge_type.name,
             legendgroup=edge_type.name,
-            opacity=1,
+            opacity=options.edge_opacity,
             hoverinfo="text",
             text=edges["info"],
         )
