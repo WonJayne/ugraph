@@ -1,1 +1,2 @@
+from .compose_sequence import compose_collection_of_figures_with_slider
 from .plot_3d import ColorMap, add_3d_ugraph_to_figure
