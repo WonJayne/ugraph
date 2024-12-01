@@ -1,6 +1,6 @@
 import unittest
 
-from usage.create_example_network import create_example_state_railway_network
+from usage.create_state_network_example import create_example_state_railway_network
 
 
 class TestIntegration(unittest.TestCase):

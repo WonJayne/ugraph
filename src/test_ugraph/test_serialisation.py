@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from ugraph import UGraphDecoder, UGraphEncoder
-from usage.create_example_network import create_example_state_railway_network
+from usage.create_state_network_example import create_example_state_railway_network
 from usage.state_network import StateNetwork
 
 
