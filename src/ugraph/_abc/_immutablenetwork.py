@@ -189,8 +189,8 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
     def weak_components(self: Self) -> tuple[Self, ...]:
         return tuple(self.__class__(graph) for graph in self._underlying_digraph.components(mode="weak").subgraphs())
 
-    def debug_plot(self, file_name: Path | str | None = None, with_labels: bool = True) -> None:
-        debug_plot(self._underlying_digraph, with_labels, file_name)
+    def debug_plot(self, file_name: Path | str | None = None, with_labels: bool = True, **kwargs: Any) -> None:
+        debug_plot(self._underlying_digraph, with_labels, file_name, **kwargs)
 
     def write_json(self, path: Path | str) -> None:
         assert str(path).endswith(
