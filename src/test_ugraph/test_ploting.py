@@ -38,3 +38,8 @@ class TestUgraphPlot(unittest.TestCase):
         self.assertTrue(Path("test_plot.html").exists())
 
         self.assertRaises(ValueError, lambda: figure.write_image("test_plot.png"))
+
+    def test_debug_plot(self):
+        network = create_example_state_railway_network()
+
+        network.debug_plot(with_labels=True, file_name="test_plot.png")

@@ -1,9 +1,9 @@
 from collections import defaultdict
-from typing import List, Literal
 
-from plotly.graph_objs import Cone, Scatter, Scatter3d
+from plotly.graph_objs import Cone, Scatter
 
-from .plot_3d import ColorMap
+from ugraph import BaseLinkType, BaseNodeType, ImmutableNetworkABC, NodeABC, NodeId
+from ugraph.plot._options import ColorMap, PlotOptions
 
 try:
     import plotly.graph_objects as go
@@ -11,18 +11,6 @@ except ImportError as exc:
     raise ImportError(
         "The 'plot' functions require the 'plotly' library. \n Install it using: pip install ugraph[plotting]"
     ) from exc
-
-from ugraph import BaseLinkType, BaseNodeType, ImmutableNetworkABC, NodeABC, NodeId
-
-
-class PlotOptions:
-    add_arrow: bool = True
-    arrow_width: int = 2
-    node_size: int = 2
-    node_shape: str = "circle"
-    edge_width: int = 6
-    edge_dash: Literal["solid", "dash", "dot", "longdash", "dashdot", "longdashdot"] = "solid"
-    edge_opacity: float = 1.0
 
 
 def add_2d_ugraph_to_figure(

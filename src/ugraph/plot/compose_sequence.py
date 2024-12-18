@@ -28,7 +28,7 @@ def compose_collection_of_figures_with_slider(figures: Collection[go.Figure]) ->
             {
                 "buttons": [
                     {
-                        "args": [None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}],
+                        "args": [None, {"frame": {"duration": 0, "redraw": True}, "fromcurrent": False}],
                         "label": "Play",
                         "method": "animate",
                     },
@@ -61,7 +61,7 @@ def compose_collection_of_figures_with_slider(figures: Collection[go.Figure]) ->
                 "y": 0,
                 "steps": [
                     {
-                        "args": [[str(i)], {"frame": {"duration": 300, "redraw": True}, "mode": "immediate"}],
+                        "args": [[str(i)], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate"}],
                         "label": f"Figure {i + 1}",
                         "method": "animate",
                     }
