@@ -545,7 +545,11 @@ files = [
 [package.dependencies]
 astroid = ">=3.3.5,<=3.4.0-dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
-dill = {version = ">=0.2", markers = "python_version < \"3.11\""}
+dill = [
+    {version = ">=0.2", markers = "python_version < \"3.11\""},
+    {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
+    {version = ">=0.3.6", markers = "python_version >= \"3.11\" and python_version < \"3.12\""},
+]
 isort = ">=4.2.5,<5.13.0 || >5.13.0,<6"
 mccabe = ">=0.6,<0.8"
 platformdirs = ">=2.2.0"
@@ -679,5 +683,5 @@ plotting = ["plotly"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = "~3.10"
-content-hash = "b7756060ac6305b7a335d17dc364fcdfca28640186c808a76967eb98cb8b8a6e"
+python-versions = "^3.10"
+content-hash = "b96281670f5b5882978691a09feb3e18ba1c29fe68e0bfc3be533c28cd035cda"
