@@ -69,10 +69,10 @@ class MutableNetworkABC(ImmutableNetworkABC[NodeT, LinkT, NodeTypeT, LinkTypeT],
     def delete_links_with_type(self, types: AbstractSet[LinkTypeT]) -> None:
         self.delete_links([LinkIndex(i) for i, link in enumerate(self.all_links) if link.link_type in types])
 
-    def delete_nodes(self, to_remove: Iterable[NodeIndex] | Iterable[NodeId]) -> None:
+    def delete_nodes(self, to_remove: Collection[NodeIndex] | Collection[NodeId]) -> None:
         self._underlying_digraph.delete_vertices(to_remove)
 
-    def delete_links(self, to_remove: Iterable[LinkIndex]) -> None:
+    def delete_links(self, to_remove: Collection[LinkIndex]) -> None:
         self._underlying_digraph.delete_edges(to_remove)
 
     @classmethod
