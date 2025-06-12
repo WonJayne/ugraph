@@ -81,3 +81,51 @@ def compose_collection_of_figures_with_slider(
     )
 
     return combined_figure
+
+
+def compose_with_dropdown(figures: list[go.Figure], titles: list[str] | None = None) -> go.Figure:
+    base_layout = figures[0].layout
+    all_traces = []
+    visibility_matrix = []
+
+    for i, fig in enumerate(figures):
+        vis = []
+        for trace in fig.data:
+            all_traces.append(trace)
+            vis.append(True)
+        visibility_matrix.append(vis)
+
+    # pad so each step controls all traces
+    max_len = max(len(v) for v in visibility_matrix)
+    for vis in visibility_matrix:
+        vis += [False] * (max_len - len(vis))
+
+    steps = [
+        {
+            "label": titles[i] if titles else f"Figure {i + 1}",
+            "method": "update",
+            "args": [{"visible": [j == i for j in range(len(figures)) for _ in range(len(figures[j].data))]}],
+        }
+        for i in range(len(figures))
+    ]
+
+    fig = go.Figure(data=all_traces)
+    fig.update_layout(
+        updatemenus=[
+            {
+                "type": "dropdown",
+                "showactive": True,
+                "x": 0.1,
+                "y": 1.15,
+                "buttons": steps,
+                "direction": "down",
+                "pad": {"r": 10, "t": 10},
+                "xanchor": "left",
+                "yanchor": "top",
+                "active": 0,
+                "title": {"text": "Select Service: "},
+            }
+        ],
+        **base_layout.to_plotly_json(),
+    )
+    return fig
