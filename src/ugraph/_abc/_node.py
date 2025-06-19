@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from abc import ABC
 from collections.abc import Collection
 from dataclasses import dataclass
@@ -23,9 +24,15 @@ NodeT = TypeVar("NodeT", bound=BaseNodeType)
 
 @dataclass(frozen=True, slots=True)
 class NodeABC(ABC, Generic[NodeT]):
-    id: NodeId
+    node_id: NodeId
     coordinates: ThreeDCoordinates
     node_type: NodeT
+
+    @property
+    def id(self) -> NodeId:  # noqa: D401 - keep name for backwards compatibility
+        """Return ``node_id`` (deprecated)."""
+        warnings.warn("NodeABC.id is deprecated, use node_id instead", DeprecationWarning, stacklevel=2)
+        return self.node_id
 
 
 T = TypeVar("T", bound="ThreeDCoordinates")

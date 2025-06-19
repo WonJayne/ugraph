@@ -13,4 +13,4 @@ class StateNodeType(BaseNodeType):
 class StateNode(NodeABC):
     node_type: StateNodeType
     coordinates: ThreeDCoordinates
-    id: NodeId
+    node_id: NodeId

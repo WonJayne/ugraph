@@ -32,7 +32,7 @@ def add_2d_ugraph_to_figure(
 def _compute_graph_traces(
     network: ImmutableNetworkABC, color_map: ColorMap, options: PlotOptions
 ) -> list[Scatter] | list[Cone | Scatter]:
-    nodes_by_id = {node.id: node for node in network.all_nodes}
+    nodes_by_id = {node.node_id: node for node in network.all_nodes}
     base_traces = _create_edge_traces(color_map, network, nodes_by_id, options) + _create_node_traces(
         color_map, network, options
     )
@@ -76,7 +76,7 @@ def _create_node_traces(color_map: ColorMap, network: ImmutableNetworkABC, optio
         _type = node.node_type
         nodes_by_type[_type]["node_x"].append(node.coordinates.x)
         nodes_by_type[_type]["node_y"].append(node.coordinates.y)
-        nodes_by_type[_type]["node_name"].append(f"{node.id} {node.node_type.name}")
+        nodes_by_type[_type]["node_name"].append(f"{node.node_id} {node.node_type.name}")
     return [
         go.Scatter(
             x=nodes["node_x"],
@@ -110,7 +110,7 @@ def _create_edge_traces(
         _type = link.link_type
         edges_by_type[_type]["edge_x"].extend((s_cords.x, (t_cords.x + s_cords.x) * 0.5, t_cords.x, None))
         edges_by_type[_type]["edge_y"].extend((s_cords.y, (t_cords.y + s_cords.y) * 0.5, t_cords.y, None))
-        text = f"S:{s_node.id} T:{t_node.id},<br>link_type:{link.link_type}"
+        text = f"S:{s_node.node_id} T:{t_node.node_id},<br>link_type:{link.link_type}"
         edges_by_type[_type]["info"].extend((text, text, text, None))
     return [
         go.Scatter(
