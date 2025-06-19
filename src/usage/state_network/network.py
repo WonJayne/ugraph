@@ -70,7 +70,7 @@ def _validate_network_incidence(state_network: StateNetwork) -> Result[bool, str
 def _validate_node_incidence(state_network: StateNetwork) -> Result[bool, str]:
     outgoing_links = defaultdict(list)
     incoming_links = defaultdict(list)
-    for (s, t), link in state_network.link_by_tuple_iterator():
+    for (s, t), link in state_network.iter_links_with_tuples():
         outgoing_links[s].append(link)
         incoming_links[t].append(link)
     for i, node in enumerate(state_network.all_nodes):
