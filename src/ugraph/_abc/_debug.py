@@ -46,9 +46,7 @@ def debug_plot(
 
         node_x, node_y = zip(*coords)
         fig = go.Figure()
-        fig.add_trace(
-            go.Scatter(x=edge_x, y=edge_y, mode="lines", name="edges", line={"color": "black"})
-        )
+        fig.add_trace(go.Scatter(x=edge_x, y=edge_y, mode="lines", name="edges", line={"color": "black"}))
         fig.add_trace(
             go.Scatter(
                 x=node_x,

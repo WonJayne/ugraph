@@ -86,7 +86,7 @@ class MutableNetworkABC(ImmutableNetworkABC[NodeT, LinkT, NodeTypeT, LinkTypeT],
 def _add_nodes(network: MutableNetworkABC, nodes: Mapping[NodeId, NodeT] | Collection[NodeT]) -> None:
     v_count_before = network.underlying_digraph.vcount()
     network.underlying_digraph.add_vertices(len(nodes))
-    node_pairs = ((node.node_id, node) for node in nodes)
+    node_pairs = ((node.node_id, node) for node in nodes)  # type: ignore
     iterator_ = nodes.items() if isinstance(nodes, Mapping) else node_pairs  # type: ignore
     for i, (node_id, node) in enumerate(iterator_, start=v_count_before):
         network.underlying_digraph.vs[i][NODE_ATTRIBUTE_KEY] = node
