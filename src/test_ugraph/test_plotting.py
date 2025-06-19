@@ -20,6 +20,8 @@ class TestUgraphPlot(unittest.TestCase):
             Path("test_plot.png"),
             Path("test_plot_with_dropdown.html"),
             Path("test_plot_with_slider.html"),
+            Path("test_debug_plot.png"),
+            Path("test_debug_plot.html"),
         ):
             if path.exists():
                 path.unlink()
@@ -29,6 +31,10 @@ class TestUgraphPlot(unittest.TestCase):
 
     def test_plot(self):
         network = create_example_state_railway_network()
+
+        # test that debug_plot works
+        network.debug_plot(with_labels=True, file_name="test_debug_plot.png")
+        self.assertTrue(Path("test_debug_plot.png").is_file() or Path("test_debug_plot.html").is_file())
 
         color_map = ColorMap(
             {
