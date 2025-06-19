@@ -62,6 +62,10 @@ pip install ugraph
 
 Explore usage examples in the [examples directory](https://github.com/WonJayne/ugraph/tree/main/src/usage), or start with a [minimal example](https://github.com/WonJayne/ugraph/tree/main/src/usage/minimal_example.py).
 
+### Documentation
+
+For an extended introduction and code snippets, see [docs/getting_started.md](./docs/getting_started.md).
+
 ---
 
 ### Credits
