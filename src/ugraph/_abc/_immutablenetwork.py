@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import warnings
 from abc import ABC
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass, is_dataclass
@@ -76,6 +77,14 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
 
     @property
     def end_node_id_pair_iterator(self) -> Iterator[EndNodeIdPair]:
+        warnings.warn(
+            "end_node_id_pair_iterator is deprecated, use iter_end_node_id_pairs() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.iter_end_node_id_pairs()
+
+    def iter_end_node_id_pairs(self) -> Iterator[EndNodeIdPair]:
         return (
             EndNodeIdPair((es.source_vertex[VERTEX_NAME_KEY], es.target_vertex[VERTEX_NAME_KEY]))
             for es in self._underlying_digraph.es
@@ -83,6 +92,12 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
 
     @property
     def edge_tuple_iterator(self) -> Iterator[tuple[NodeIndex, NodeIndex]]:
+        warnings.warn(
+            "edge_tuple_iterator is deprecated, use iter_edge_tuples() instead", DeprecationWarning, stacklevel=2
+        )
+        return self.iter_edge_tuples()
+
+    def iter_edge_tuples(self) -> Iterator[tuple[NodeIndex, NodeIndex]]:
         return (es.tuple for es in self._underlying_digraph.es)
 
     @property
@@ -97,17 +112,31 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
             return []
         return self._underlying_digraph.vs[NODE_ATTRIBUTE_KEY]
 
+    def node_index_by_id(self, node_id: NodeId) -> NodeIndex:
+        """Return the index for the node with ``node_id``."""
+        return self._underlying_digraph.vs.find(node_id).index
+
     def node_index_by_name(self, node_name: NodeId) -> NodeIndex:
-        return self._underlying_digraph.vs.find(node_name).index
+        warnings.warn(
+            "node_index_by_name is deprecated, use node_index_by_id() instead", DeprecationWarning, stacklevel=2
+        )
+        return self.node_index_by_id(node_name)
+
+    def node_id_by_index(self, node_index: NodeIndex) -> NodeId:
+        """Return the node id for ``node_index``."""
+        return self._underlying_digraph.vs[VERTEX_NAME_KEY][node_index]
 
     def node_name_by_index(self, node_index: NodeIndex) -> NodeId:
-        return self._underlying_digraph.vs[VERTEX_NAME_KEY][node_index]
+        warnings.warn(
+            "node_name_by_index is deprecated, use node_id_by_index() instead", DeprecationWarning, stacklevel=2
+        )
+        return self.node_id_by_index(node_index)
 
     def node_by_index(self, node_index: NodeIndex) -> NodeT:
         return self._underlying_digraph.vs[NODE_ATTRIBUTE_KEY][node_index]
 
     def node_by_id(self, n_id: NodeId) -> NodeT:
-        return self.node_by_index(self.node_index_by_name(n_id))
+        return self.node_by_index(self.node_index_by_id(n_id))
 
     def link_index_by_source_target(self, source: NodeId | NodeIndex, target: NodeId | NodeIndex) -> LinkIndex:
         return self._underlying_digraph.get_eid(source, target)
@@ -138,9 +167,25 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
         return EndNodeIdPair((edge.source_vertex[VERTEX_NAME_KEY], edge.target_vertex[VERTEX_NAME_KEY]))
 
     def link_by_end_node_iterator(self) -> Iterator[tuple[EndNodeIdPair, LinkT]]:
-        return zip(self.end_node_id_pair_iterator, self.all_links)
+        warnings.warn(
+            "link_by_end_node_iterator is deprecated, use iter_links_with_end_nodes() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.iter_links_with_end_nodes()
+
+    def iter_links_with_end_nodes(self) -> Iterator[tuple[EndNodeIdPair, LinkT]]:
+        return zip(self.iter_end_node_id_pairs(), self.all_links)
 
     def link_by_tuple_iterator(self) -> Iterator[tuple[tuple[NodeIndex, NodeIndex], LinkT]]:
+        warnings.warn(
+            "link_by_tuple_iterator is deprecated, use iter_links_with_indices() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.iter_links_with_indices()
+
+    def iter_links_with_indices(self) -> Iterator[tuple[tuple[NodeIndex, NodeIndex], LinkT]]:
         return zip((es.tuple for es in self._underlying_digraph.es), self.all_links)
 
     def in_degrees(self) -> list[int]:
@@ -173,18 +218,41 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
     def create_empty(cls: Type[Self]) -> Self:
         return cls(igraph.Graph(directed=True))
 
-    @property
-    def shallow_copy(self: Self) -> Self:
+    def copy(self: Self) -> Self:
+        """Return a shallow copy of this network."""
         return self.__class__(self._underlying_digraph.copy())
 
+    @property
+    def shallow_copy(self: Self) -> Self:
+        """Return a shallow copy of this network (deprecated)."""
+        warnings.warn("shallow_copy is deprecated, use copy() instead", DeprecationWarning, stacklevel=2)
+        return self.copy()
+
+    def nodes_by_indices(self, indices: Iterable[NodeIndex]) -> list[NodeT]:
+        return self._underlying_digraph.vs.select(indices)[NODE_ATTRIBUTE_KEY]
+
     def nodes_by_indexes(self, indexes: Iterable[NodeIndex]) -> list[NodeT]:
-        return self._underlying_digraph.vs.select(indexes)[NODE_ATTRIBUTE_KEY]
+        warnings.warn(
+            "nodes_by_indexes is deprecated, use nodes_by_indices() instead", DeprecationWarning, stacklevel=2
+        )
+        return self.nodes_by_indices(indexes)
+
+    def nodes_by_ids(self, ids: Iterable[NodeId]) -> list[NodeT]:
+        """Return the nodes for the given ids."""
+        return self._underlying_digraph.vs.select(name_in=ids)[NODE_ATTRIBUTE_KEY]
 
     def nodes_by_names(self, names: Iterable[NodeId]) -> list[NodeT]:
-        return self._underlying_digraph.vs.select(name_in=names)[NODE_ATTRIBUTE_KEY]
+        warnings.warn("nodes_by_names is deprecated, use nodes_by_ids() instead", DeprecationWarning, stacklevel=2)
+        return self.nodes_by_ids(names)
+
+    def links_by_indices(self, indices: Iterable[LinkIndex]) -> list[LinkT]:
+        return self._underlying_digraph.es.select(indices)[LINK_ATTRIBUTE_KEY]
 
     def links_by_indexes(self, indexes: Iterable[LinkIndex]) -> list[LinkT]:
-        return self._underlying_digraph.es.select(indexes)[LINK_ATTRIBUTE_KEY]
+        warnings.warn(
+            "links_by_indexes is deprecated, use links_by_indices() instead", DeprecationWarning, stacklevel=2
+        )
+        return self.links_by_indices(indexes)
 
     def weak_components(self: Self) -> tuple[Self, ...]:
         return tuple(self.__class__(graph) for graph in self._underlying_digraph.components(mode="weak").subgraphs())
