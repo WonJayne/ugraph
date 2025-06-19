@@ -9,7 +9,7 @@ authors = [
 readme = "README.md"
 repository = "https://github.com/WonJayne/ugraph"
 homepage = "https://github.com/WonJayne/ugraph"
-documentation = "https://github.com/WonJayne/ugraph/blob/main/README.md"
+documentation = "https://github.com/WonJayne/ugraph/blob/main/docs/getting_started.md"
 keywords = ["graphs", "igraph", "typed-graphs", "visualization"]
 license = "MIT"
 
