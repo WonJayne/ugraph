@@ -83,7 +83,7 @@ def compose_collection_of_figures_with_slider(
     return combined_figure
 
 
-def compose_with_dropdown(figures: list[go.Figure], titles: list[str] | None = None) -> go.Figure:
+def compose_with_dropdown(figures: Sequence[go.Figure], titles: Sequence[str] | None = None) -> go.Figure:
     base_layout = figures[0].layout
     all_traces = []
     visibility_matrix = []
@@ -112,19 +112,7 @@ def compose_with_dropdown(figures: list[go.Figure], titles: list[str] | None = N
     fig = go.Figure(data=all_traces)
     fig.update_layout(
         updatemenus=[
-            {
-                "type": "dropdown",
-                "showactive": True,
-                "x": 0.1,
-                "y": 1.15,
-                "buttons": steps,
-                "direction": "down",
-                "pad": {"r": 10, "t": 10},
-                "xanchor": "left",
-                "yanchor": "top",
-                "active": 0,
-                "title": {"text": "Select Service: "},
-            }
+            {"type": "dropdown", "showactive": True, "x": 0.1, "y": 1.15, "buttons": steps, "name": "Select Figure"}
         ],
         **base_layout.to_plotly_json(),
     )

@@ -1,7 +1,12 @@
 import unittest
 from pathlib import Path
 
-from ugraph.plot import ColorMap, add_3d_ugraph_to_figure
+from ugraph.plot import (
+    ColorMap,
+    add_3d_ugraph_to_figure,
+    compose_collection_of_figures_with_slider,
+    compose_with_dropdown,
+)
 from usage.create_state_network_example import create_example_state_railway_network
 from usage.state_network import StateLinkType, StateNodeType
 
@@ -10,7 +15,12 @@ class TestUgraphPlot(unittest.TestCase):
 
     def setUp(self) -> None:
         # delete the file if it exists
-        for path in (Path("test_plot.html"), Path("test_plot.png")):
+        for path in (
+            Path("test_plot.html"),
+            Path("test_plot.png"),
+            Path("test_plot_with_dropdown.html"),
+            Path("test_plot_with_slider.html"),
+        ):
             if path.exists():
                 path.unlink()
 
@@ -40,6 +50,13 @@ class TestUgraphPlot(unittest.TestCase):
         with self.assertRaises(ValueError):
             figure.write_image("test_plot.png")
         self.assertFalse(Path("test_plot.png").exists())
+
+        compose_with_dropdown([figure], ["Test Plot"]).write_html("test_plot_with_dropdown.html")
+
+        compose_collection_of_figures_with_slider([figure], ["Test Plot"]).write_html("test_plot_with_slider.html")
+
+        self.assertTrue(Path("test_plot_with_dropdown.html").exists())
+        self.assertTrue(Path("test_plot_with_slider.html").exists())
 
     def test_debug_plot(self):
         network = create_example_state_railway_network()
