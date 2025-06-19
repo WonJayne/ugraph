@@ -53,7 +53,9 @@ def _validate_network_incidence(state_network: StateNetwork) -> Result[bool, str
             return Result.from_failure(f"Infrastructure component {component} is not a DAG")
         if not component.underlying_digraph.is_simple():
             component.debug_plot(file_name=f"inconsistent_infra.png")
-            return Result.from_failure(f"Infrastructure component {component} has more than one node")
+            return Result.from_failure(
+                f"Infrastructure component {component} is not simple (contains loops or multiple edges)"
+            )
     except_transitions = state_network.shallow_copy
     for component in except_transitions.weak_components():
         if not component.underlying_digraph.is_dag():
@@ -61,7 +63,9 @@ def _validate_network_incidence(state_network: StateNetwork) -> Result[bool, str
             return Result.from_failure(f"Component {component} is not a DAG")
         if not component.underlying_digraph.is_simple():
             component.debug_plot(file_name=f"inconsistent_transitions.png")
-            return Result.from_failure(f"Component {component} has more than one node")
+            return Result.from_failure(
+                f"Component {component} is not simple (contains loops or multiple edges)"
+            )
     return Result.from_success(True)
 
 
