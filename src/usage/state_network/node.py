@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import unique
 
 from ugraph import BaseNodeType, NodeABC, NodeId, ThreeDCoordinates
@@ -10,6 +11,7 @@ class StateNodeType(BaseNodeType):
     AGENT = 2
 
 
+@dataclass(frozen=True)
 class StateNode(NodeABC):
     node_type: StateNodeType
     coordinates: ThreeDCoordinates

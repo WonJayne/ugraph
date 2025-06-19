@@ -19,14 +19,14 @@ class BaseNodeType(IntEnum):
     pass
 
 
-NodeT = TypeVar("NodeT", bound=BaseNodeType)
+NodeTypeT = TypeVar("NodeTypeT", bound=BaseNodeType)
 
 
 @dataclass(frozen=True, slots=True)
-class NodeABC(ABC, Generic[NodeT]):
+class NodeABC(ABC, Generic[NodeTypeT]):
     node_id: NodeId
     coordinates: ThreeDCoordinates
-    node_type: NodeT
+    node_type: NodeTypeT
 
     @property
     def id(self) -> NodeId:  # noqa: D401 - keep name for backwards compatibility
