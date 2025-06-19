@@ -36,13 +36,16 @@ def debug_plot(
 
         node_x, node_y = zip(*coords)
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=edge_x, y=edge_y, mode="lines", line={"color": "black"}))
+        fig.add_trace(
+            go.Scatter(x=edge_x, y=edge_y, mode="lines", name="edges", line={"color": "black"})
+        )
         fig.add_trace(
             go.Scatter(
                 x=node_x,
                 y=node_y,
                 mode="markers+text" if with_labels else "markers",
                 text=graph.vs["name"] if with_labels else None,
+                name="nodes",
             )
         )
         output = Path(file_name) if file_name is not None else Path("debug.html")
