@@ -1,11 +1,10 @@
+import warnings
 from collections.abc import Hashable, Sequence
 from pathlib import Path
 from typing import Any
-import warnings
-
-import plotly.graph_objects as go
 
 import igraph as ig
+import plotly.graph_objects as go
 
 
 def debug_plot(
@@ -24,15 +23,13 @@ def debug_plot(
 
     visual_style = {"layout": k, "bbox": (4000, 4000), "vertex_size": 3}
     try:
-        ig.plot(graph, **visual_style, **kwargs).save(
-            file_name if file_name is not None else "debug.jpg"
-        )
+        ig.plot(graph, **visual_style, **kwargs).save(file_name if file_name is not None else "debug.jpg")
     except AttributeError:
         # fallback to a simple plotly based plot if cairo is unavailable
         warnings.warn("pycairo is missing; falling back to plotly for debug plot output")
         coords = k.coords
-        edge_x: list[float] = []
-        edge_y: list[float] = []
+        edge_x: list[float | None] = []
+        edge_y: list[float | None] = []
         for s, t in graph.get_edgelist():
             edge_x.extend((coords[s][0], coords[t][0], None))
             edge_y.extend((coords[s][1], coords[t][1], None))
