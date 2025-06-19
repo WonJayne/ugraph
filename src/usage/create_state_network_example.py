@@ -31,19 +31,21 @@ def create_example_state_railway_network() -> StateNetwork:
         resource_node_id = NodeId(resource_index)
         nodes_to_add.append(
             StateNode(
-                id=forward_node_id, coordinates=ThreeDCoordinates(x=x, y=y, z=0), node_type=StateNodeType.INFRASTRUCTURE
+                node_id=forward_node_id,
+                coordinates=ThreeDCoordinates(x=x, y=y, z=0),
+                node_type=StateNodeType.INFRASTRUCTURE,
             )
         )
         nodes_to_add.append(
             StateNode(
-                id=backward_node_id,
+                node_id=backward_node_id,
                 coordinates=ThreeDCoordinates(x=x, y=y + BACKWARD_OFFSET, z=0),
                 node_type=StateNodeType.INFRASTRUCTURE,
             )
         )
         nodes_to_add.append(
             StateNode(
-                id=NodeId(resource_index),
+                node_id=NodeId(resource_index),
                 coordinates=ThreeDCoordinates(x=x, y=y, z=RESOURCE_Z),
                 node_type=StateNodeType.RESOURCE,
             )

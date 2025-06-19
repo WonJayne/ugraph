@@ -50,13 +50,13 @@ class ExampleNetwork(MutableNetworkABC[ExampleNode, ExampleLink, ExampleNodeType
 def create_example_network() -> ExampleNetwork:
     # Create two nodes and a link to show how to use the network
     node_a = ExampleNode(
-        id=NodeId("A"),
+        node_id=NodeId("A"),
         coordinates=ThreeDCoordinates(x=0, y=0, z=0),
         node_type=ExampleNodeType.EXAMPLE_NODE,
         example_value=1,
     )
     node_b = ExampleNode(
-        id=NodeId("B"),
+        node_id=NodeId("B"),
         coordinates=ThreeDCoordinates(x=100, y=-100, z=100),
         node_type=ExampleNodeType.EXAMPLE_NODE,
         example_value=2,

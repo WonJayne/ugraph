@@ -86,7 +86,7 @@ class MutableNetworkABC(ImmutableNetworkABC[NodeT, LinkT, NodeTypeT, LinkTypeT],
 def _add_nodes(network: MutableNetworkABC, nodes: Mapping[NodeId, NodeT] | Collection[NodeT]) -> None:
     v_count_before = network.underlying_digraph.vcount()
     network.underlying_digraph.add_vertices(len(nodes))
-    iterator_ = nodes.items() if isinstance(nodes, Mapping) else ((node.id, node) for node in nodes)  # type: ignore
+    iterator_ = nodes.items() if isinstance(nodes, Mapping) else ((node.node_id, node) for node in nodes)  # type: ignore
     for i, (node_id, node) in enumerate(iterator_, start=v_count_before):
         network.underlying_digraph.vs[i][NODE_ATTRIBUTE_KEY] = node
         network.underlying_digraph.vs[i][VERTEX_NAME_KEY] = node_id
@@ -107,25 +107,29 @@ def _append_to_network(
 ) -> None:
     if skip_duplicate_nodes:
         existing_node_ids = set(network_to_extend.node_ids)
-        nodes_to_add = {node.id: node for node in network_to_append.all_nodes if node.id not in existing_node_ids}
+        nodes_to_add = {
+            node.node_id: node for node in network_to_append.all_nodes if node.node_id not in existing_node_ids
+        }
         network_to_extend.add_nodes(nodes_to_add)
     else:
         assert not (overlap := set(network_to_extend.node_ids).intersection(network_to_append.node_ids)), f"{overlap=}"
 
-        network_to_extend.add_nodes({node.id: node for node in network_to_append.all_nodes})
+        network_to_extend.add_nodes({node.node_id: node for node in network_to_append.all_nodes})
     links_to_add = tuple(network_to_append.iter_links_with_end_nodes())
     if len(links_to_add) > 0:
         network_to_extend.add_links(links_to_add)
 
 
 def _replace_node(network: MutableNetworkABC, index: NodeIndex, new_node: NodeT, renamed: bool) -> None:
-    if network.underlying_digraph.vs[index][VERTEX_NAME_KEY] != new_node.id:
+    if network.underlying_digraph.vs[index][VERTEX_NAME_KEY] != new_node.node_id:
         if not renamed:
             raise ValueError(
-                f"Node id mismatch: {network.underlying_digraph.vs[index][VERTEX_NAME_KEY]} != {new_node.id}"
+                f"Node id mismatch: {network.underlying_digraph.vs[index][VERTEX_NAME_KEY]} != {new_node.node_id}"
             )
-        assert new_node.id not in set(network.underlying_digraph.vs[VERTEX_NAME_KEY]), f"{new_node.id=} not unique"
-        network.underlying_digraph.vs[index][VERTEX_NAME_KEY] = new_node.id
+        assert new_node.node_id not in set(
+            network.underlying_digraph.vs[VERTEX_NAME_KEY]
+        ), f"{new_node.node_id=} not unique"
+        network.underlying_digraph.vs[index][VERTEX_NAME_KEY] = new_node.node_id
     network.underlying_digraph.vs[index][NODE_ATTRIBUTE_KEY] = new_node
 
 
