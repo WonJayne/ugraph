@@ -110,9 +110,11 @@ def _append_to_network(
         nodes_to_add = {node.id: node for node in network_to_append.all_nodes if node.id not in existing_node_ids}
         network_to_extend.add_nodes(nodes_to_add)
     else:
-        assert (
-            set(network_to_extend.node_ids).difference(network_to_append.node_ids) == {}
-        ), f"{set(network_to_extend.node_ids).difference(network_to_append.node_ids) == {} }"
+        assert not (
+            overlap := set(network_to_extend.node_ids).intersection(
+                network_to_append.node_ids
+            )
+        ), f"{overlap=}"
 
         network_to_extend.add_nodes({node.id: node for node in network_to_append.all_nodes})
     links_to_add = tuple(network_to_append.link_by_end_node_iterator())
