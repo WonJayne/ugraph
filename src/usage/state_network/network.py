@@ -10,27 +10,27 @@ from ._utils.result import Result
 class StateNetwork(MutableNetworkABC[StateNode, StateLink, StateNodeType, StateLinkType]):
 
     def reduce_to_agent_network(self) -> "StateNetwork":
-        copied = self.shallow_copy
+        copied = self.copy()
         copied.delete_nodes_without_type(frozenset((StateNodeType.AGENT,)))
         return copied
 
     def reduce_to_resource_network(self) -> "StateNetwork":
-        copied = self.shallow_copy
+        copied = self.copy()
         copied.delete_nodes_without_type(frozenset((StateNodeType.RESOURCE,)))
         return copied
 
     def reduce_to_transition_network(self) -> "StateNetwork":
-        copied = self.shallow_copy
+        copied = self.copy()
         copied.delete_nodes_without_type(frozenset((StateNodeType.INFRASTRUCTURE,)))
         return copied
 
     def reduce_to_resource_and_infrastructure_network(self) -> "StateNetwork":
-        copied = self.shallow_copy
+        copied = self.copy()
         copied.delete_nodes_without_type(frozenset((StateNodeType.RESOURCE, StateNodeType.INFRASTRUCTURE)))
         return copied
 
     def reduce_to_infrastructure_and_agent_network(self) -> "StateNetwork":
-        copied = self.shallow_copy
+        copied = self.copy()
         copied.delete_nodes_without_type(frozenset((StateNodeType.INFRASTRUCTURE, StateNodeType.AGENT)))
         return copied
 
@@ -56,7 +56,7 @@ def _validate_network_incidence(state_network: StateNetwork) -> Result[bool, str
             return Result.from_failure(
                 f"Infrastructure component {component} is not simple (contains loops or multiple edges)"
             )
-    except_transitions = state_network.shallow_copy
+    except_transitions = state_network.copy()
     for component in except_transitions.weak_components():
         if not component.underlying_digraph.is_dag():
             component.debug_plot(file_name=f"inconsistent_transitions.png")

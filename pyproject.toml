@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ugraph"
-version = "0.79.0"
+version = "0.79.dev1"
 description = ""
 authors = [
     "flfuchs tdubach <flfuchs@student.ethz.ch>",
@@ -17,7 +17,7 @@ license = "MIT"
 python = "^3.10"
 igraph = "^0.11.8"
 pycairo = "^1.27.0"
-plotly = { version = "^5.24.1", optional = true }
+plotly = "^5.24.1"
 
 [tool.poetry.extras]
 plotting = ["plotly"]
