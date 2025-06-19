@@ -52,7 +52,7 @@ Install `ugraph` using pip:
 pip install ugraph
 ```
 
-(if you want plotting included, use `pip install ugraph[plotting]`)
+(if you need igraph's cairo-based plotting, use `pip install ugraph[cairo]`)
 
 ---
 
