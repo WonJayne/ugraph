@@ -134,13 +134,3 @@ def _replace_node(network: MutableNetworkABC, index: NodeIndex, new_node: NodeT,
     network.underlying_digraph.vs[index][NODE_ATTRIBUTE_KEY] = new_node
 
 
-def _delete_nodes_without_event_type(self: MutableNetworkABC, types: Iterable[BaseNodeType]) -> None:
-    if not isinstance(types, (set, frozenset)):
-        types = frozenset(types)
-    self.delete_nodes([i for i, n in enumerate(self.all_nodes) if n.node_type not in types])  # type: ignore
-
-
-def _delete_nodes_with_event_type(self: MutableNetworkABC, types: Iterable[BaseNodeType]) -> None:
-    if not isinstance(types, (set, frozenset)):
-        types = frozenset(types)
-    self.delete_nodes([i for i, n in enumerate(self.all_nodes) if n.node_type in types])  # type: ignore
