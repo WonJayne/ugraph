@@ -12,11 +12,10 @@ from ugraph._abc._immutablenetwork import (
     ImmutableNetworkABC,
     LinkIndex,
     LinkT,
-    LinkTypeT,
     NodeT,
     NodeTypeT,
 )
-from ugraph._abc._link import EndNodeIdPair
+from ugraph._abc._link import EndNodeIdPair, LinkTypeT
 from ugraph._abc._node import BaseNodeType, NodeId, NodeIndex
 
 Self = TypeVar("Self", bound="MutableNetworkABC")
