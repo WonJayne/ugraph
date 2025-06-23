@@ -13,9 +13,9 @@ class BaseLinkType(IntEnum):
     pass
 
 
-LinkT = TypeVar("LinkT", bound="LinkABC")
+LinkTypeT = TypeVar("LinkTypeT", bound=BaseLinkType)
 
 
 @dataclass(frozen=True, slots=True)
-class LinkABC(Generic[LinkT], ABC):
-    link_type: LinkT
+class LinkABC(Generic[LinkTypeT], ABC):
+    link_type: LinkTypeT

@@ -13,5 +13,5 @@ class StateLinkType(BaseLinkType):
 
 
 @dataclass(frozen=True)
-class StateLink(LinkABC):
+class StateLink(LinkABC[StateLinkType]):
     link_type: StateLinkType

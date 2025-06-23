@@ -12,13 +12,12 @@ from typing import Any, Generic, Iterator, Literal, NewType, Type, TypeVar, Unio
 import igraph
 
 from ugraph._abc._debug import debug_plot
-from ugraph._abc._link import BaseLinkType, EndNodeIdPair, LinkABC
+from ugraph._abc._link import BaseLinkType, EndNodeIdPair, LinkABC, LinkTypeT
 from ugraph._abc._node import BaseNodeType, NodeABC, NodeId, NodeIndex
 
 NodeT = TypeVar("NodeT", bound=NodeABC)
 LinkT = TypeVar("LinkT", bound=LinkABC)
 NodeTypeT = TypeVar("NodeTypeT", bound=BaseNodeType)
-LinkTypeT = TypeVar("LinkTypeT", bound=BaseLinkType)
 Self = TypeVar("Self", bound="ImmutableNetworkABC")
 LinkIndex = NewType("LinkIndex", int)
 
