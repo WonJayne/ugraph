@@ -1,11 +1,11 @@
 from abc import ABC
-from collections.abc import Collection, Iterable, Mapping
+from collections.abc import Collection, Mapping
 from dataclasses import dataclass
 from typing import AbstractSet, TypeVar
 
 import igraph
 
-from ugraph._abc._immutablenetwork import (
+from ._immutablenetwork import (
     LINK_ATTRIBUTE_KEY,
     NODE_ATTRIBUTE_KEY,
     VERTEX_NAME_KEY,
@@ -15,8 +15,8 @@ from ugraph._abc._immutablenetwork import (
     NodeT,
     NodeTypeT,
 )
-from ugraph._abc._link import EndNodeIdPair, LinkTypeT
-from ugraph._abc._node import BaseNodeType, NodeId, NodeIndex
+from ._link import EndNodeIdPair, LinkTypeT
+from ._node import NodeId, NodeIndex
 
 Self = TypeVar("Self", bound="MutableNetworkABC")
 
@@ -131,5 +131,3 @@ def _replace_node(network: MutableNetworkABC, index: NodeIndex, new_node: NodeT,
         ), f"{new_node.node_id=} not unique"
         network.underlying_digraph.vs[index][VERTEX_NAME_KEY] = new_node.node_id
     network.underlying_digraph.vs[index][NODE_ATTRIBUTE_KEY] = new_node
-
-

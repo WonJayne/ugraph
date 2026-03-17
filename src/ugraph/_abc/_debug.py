@@ -37,27 +37,14 @@ def debug_plot(
 
         coords = layout.coords
         edge_list = graph.get_edgelist()
-        edge_x = [
-            coord
-            for src_idx, tgt_idx in edge_list
-            for coord in (coords[src_idx][0], coords[tgt_idx][0], None)
-        ]
-        edge_y = [
-            coord
-            for src_idx, tgt_idx in edge_list
-            for coord in (coords[src_idx][1], coords[tgt_idx][1], None)
-        ]
+        edge_x = [coord for src_idx, tgt_idx in edge_list for coord in (coords[src_idx][0], coords[tgt_idx][0], None)]
+        edge_y = [coord for src_idx, tgt_idx in edge_list for coord in (coords[src_idx][1], coords[tgt_idx][1], None)]
 
         node_x, node_y = zip(*coords)
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=edge_x,
-                y=edge_y,
-                mode="lines",
-                name="edges",
-                line={"color": "black", "width": 1},
-                hoverinfo="skip",
+                x=edge_x, y=edge_y, mode="lines", name="edges", line={"color": "black", "width": 1}, hoverinfo="skip"
             )
         )
         fig.add_trace(
@@ -75,36 +62,36 @@ def debug_plot(
         if show_direction:
             annotations = []
             for src_idx, tgt_idx in edge_list:
-                x0, y0 = coords[src_idx]
-                x1, y1 = coords[tgt_idx]
+                x_0, y_0 = coords[src_idx]
+                x_1, y_1 = coords[tgt_idx]
 
-                dx = x1 - x0
-                dy = y1 - y0
-                length = (dx**2 + dy**2) ** 0.5
+                delta_x = x_1 - x_0
+                delta_y = y_1 - y_0
+                length = (delta_x**2 + delta_y**2) ** 0.5
                 if length == 0:
                     continue
 
                 frac = max(0.0, 1.0 - arrow_scale / length)
-                xa = x0 + frac * dx
-                ya = y0 + frac * dy
+                x_a = x_0 + frac * delta_x
+                y_a = y_0 + frac * delta_y
 
                 annotations.append(
-                    dict(
-                        ax=x0,
-                        ay=y0,
-                        x=xa,
-                        y=ya,
-                        xref="x",
-                        yref="y",
-                        axref="x",
-                        ayref="y",
-                        showarrow=True,
-                        arrowhead=3,
-                        arrowsize=1.2,
-                        arrowwidth=1.2,
-                        arrowcolor="black",
-                        standoff=2,
-                    )
+                    {
+                        "ax": x_0,
+                        "ay": y_0,
+                        "x": x_a,
+                        "y": y_a,
+                        "xref": "x",
+                        "yref": "y",
+                        "axref": "x",
+                        "ayref": "y",
+                        "showarrow": True,
+                        "arrowhead": 3,
+                        "arrowsize": 1.2,
+                        "arrowwidth": 1.2,
+                        "arrowcolor": "black",
+                        "standoff": 2,
+                    }
                 )
 
             fig.update_layout(annotations=annotations)
@@ -115,7 +102,5 @@ def debug_plot(
             yaxis={"visible": False, "scaleanchor": "x", "scaleratio": 1},
             margin={"l": 20, "r": 20, "t": 20, "b": 20},
         )
-
         output = Path(file_name) if file_name is not None else Path("debug.html")
-        # Avoid image export if kaleido is not installed; always write html
         fig.write_html(str(output.with_suffix(".html")))

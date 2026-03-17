@@ -7,7 +7,7 @@ def compose_collection_of_figures_with_slider(
     figures: Sequence[go.Figure], titles: Sequence[str] | None = None
 ) -> go.Figure:
     """
-    Combine multiple figures, including those with subplots, into one figure with a slider for navigation.
+    Combines multiple figures, including those with subplots, into one figure with a slider for navigation.
 
     Args:
         figures (Collection[go.Figure]): A collection of Plotly figures to combine.

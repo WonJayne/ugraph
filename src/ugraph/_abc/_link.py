@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import IntEnum, unique
 from typing import Generic, NewType, TypeVar
 
-from ugraph._abc._node import NodeId
+from ._node import NodeId
 
 EndNodeIdPair = NewType("EndNodeIdPair", tuple[NodeId, NodeId])
 

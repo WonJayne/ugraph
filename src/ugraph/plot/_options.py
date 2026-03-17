@@ -1,4 +1,5 @@
-from typing import Hashable, Literal, NewType
+from collections.abc import Hashable
+from typing import Literal, NewType
 
 ColorMap = NewType("ColorMap", dict[Hashable, str])
 
