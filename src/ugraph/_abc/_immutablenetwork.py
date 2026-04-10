@@ -101,7 +101,7 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
 
     @property
     def all_links(self) -> list[LinkT]:
-        if self._underlying_digraph.vcount() == 0:
+        if self._underlying_digraph.ecount() == 0:
             return []
         return self._underlying_digraph.es[LINK_ATTRIBUTE_KEY]
 
@@ -174,7 +174,7 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
         return self.iter_links_with_end_nodes()
 
     def iter_links_with_end_nodes(self) -> Iterator[tuple[EndNodeIdPair, LinkT]]:
-        return zip(self.iter_end_node_id_pairs(), self.all_links)
+        return zip(self.iter_end_node_id_pairs(), self.all_links, strict=True)
 
     def link_by_tuple_iterator(self) -> Iterator[tuple[tuple[NodeIndex, NodeIndex], LinkT]]:
         warnings.warn(
@@ -185,7 +185,7 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
         return self.iter_links_with_tuples()
 
     def iter_links_with_tuples(self) -> Iterator[tuple[tuple[NodeIndex, NodeIndex], LinkT]]:
-        return zip((es.tuple for es in self._underlying_digraph.es), self.all_links)
+        return zip((es.tuple for es in self._underlying_digraph.es), self.all_links, strict=True)
 
     def in_degrees(self) -> list[int]:
         return self._underlying_digraph.indegree()
