@@ -215,7 +215,9 @@ class ImmutableNetworkABC(Generic[NodeT, LinkT, NodeTypeT, LinkTypeT], ABC):
 
     @classmethod
     def create_empty(cls: Type[Self]) -> Self:
-        return cls(igraph.Graph(directed=True))
+        g = igraph.Graph(directed=True)
+        g.vs[VERTEX_NAME_KEY] = []
+        return cls(g)
 
     def copy(self: Self) -> Self:
         """Return a shallow copy of this network."""
@@ -319,8 +321,8 @@ def _dataclass_from_dict(cls: type, data: dict[str, Any | None] | Any) -> Any:
         for arg in get_args(cls):
             try:
                 return _dataclass_from_dict(arg, data)
-            except Exception as exception:  # pylint: disable=broad-except
-                print(f"Failed to convert {data} to {arg}: {exception}", flush=True)
+            except Exception:  # pylint: disable=broad-except
+                pass
         raise ValueError(f"Could not convert {data} to any of {get_args(cls)}")
 
     # handle types defined with NewType
