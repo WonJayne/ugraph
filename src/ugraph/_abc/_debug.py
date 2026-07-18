@@ -15,13 +15,13 @@ def _get_layout(graph: ig.Graph, weights: Sequence[float] | None = None) -> ig.L
 
 
 def debug_plot(
-    graph: ig.Graph,
-    with_labels: bool = True,
-    file_name: str | Path | None = None,
-    weights: Sequence[float] | None = None,
-    show_direction: bool = True,
-    arrow_scale: float = 0.18,
-    **kwargs: dict[Hashable, Any],
+        graph: ig.Graph,
+        with_labels: bool = True,
+        file_name: str | Path | None = None,
+        weights: Sequence[float] | None = None,
+        show_direction: bool = True,
+        arrow_scale: float = 0.18,
+        **kwargs: dict[Hashable, Any],
 ) -> None:
     if with_labels:
         graph.vs["label"] = graph.vs["name"]
@@ -40,7 +40,7 @@ def debug_plot(
         edge_x = [coord for src_idx, tgt_idx in edge_list for coord in (coords[src_idx][0], coords[tgt_idx][0], None)]
         edge_y = [coord for src_idx, tgt_idx in edge_list for coord in (coords[src_idx][1], coords[tgt_idx][1], None)]
 
-        node_x, node_y = zip(*coords)
+        node_x, node_y = zip(*coords[:len(graph.vs)])
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
@@ -67,7 +67,7 @@ def debug_plot(
 
                 delta_x = x_1 - x_0
                 delta_y = y_1 - y_0
-                length = (delta_x**2 + delta_y**2) ** 0.5
+                length = (delta_x ** 2 + delta_y ** 2) ** 0.5
                 if length == 0:
                     continue
 
