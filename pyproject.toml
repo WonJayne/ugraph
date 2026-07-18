@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ugraph"
 version = "0.10.5"
-description = ""
+description = "Typed domain graphs built on python-igraph"
 authors = [
     "flfuchs tdubach <flfuchs@student.ethz.ch>",
     "tdubach <thomas.dubach@ivt.baug.ethz.ch>"
