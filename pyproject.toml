@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ugraph"
-version = "0.10.1"
+version = "0.10.2"
 description = ""
 authors = [
     "flfuchs tdubach <flfuchs@student.ethz.ch>",
