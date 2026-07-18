@@ -35,18 +35,18 @@ def debug_plot(
         # fallback to a simple plotly based plot if cairo is unavailable
         warnings.warn("pycairo is missing; falling back to plotly for debug plot output")
 
-        coords = layout.coords
+        coords = layout.coords[:graph.vcount()]
         edge_list = graph.get_edgelist()
         edge_x = [coord for src_idx, tgt_idx in edge_list for coord in (coords[src_idx][0], coords[tgt_idx][0], None)]
         edge_y = [coord for src_idx, tgt_idx in edge_list for coord in (coords[src_idx][1], coords[tgt_idx][1], None)]
 
-        node_x, node_y = zip(*coords[:len(graph.vs)])
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
                 x=edge_x, y=edge_y, mode="lines", name="edges", line={"color": "black", "width": 1}, hoverinfo="skip"
             )
         )
+        node_x, node_y = zip(*coords)
         fig.add_trace(
             go.Scatter(
                 x=node_x,
