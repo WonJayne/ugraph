@@ -1,80 +1,124 @@
 # ugraph
 
-[![PyPI version](https://badge.fury.io/py/ugraph.svg)](https://badge.fury.io/py/ugraph)
+[![PyPI version](https://badge.fury.io/py/ugraph.svg)](https://pypi.org/project/ugraph/)
 [![Downloads](https://pepy.tech/badge/ugraph)](https://pepy.tech/project/ugraph)
-![black](https://img.shields.io/badge/code%20style-black-000000.svg)
-![isort](https://img.shields.io/badge/%20imports-isort-%231674b1.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![mypyc](https://img.shields.io/badge/mypy%20checked-100%25-brightgreen)
-![flake8](https://img.shields.io/badge/flake8%20checked-100%25-brightgreen)
-![pylint](https://img.shields.io/badge/pylint%20checked-100%25-brightgreen)
+[![Python](https://img.shields.io/pypi/pyversions/ugraph.svg)](https://pypi.org/project/ugraph/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Extend your graphs beyond structure—add meaning with `ugraph`.**
+`ugraph` is a small typed domain-model layer on top of
+[python-igraph](https://python.igraph.org/). It stores immutable Python objects as nodes and links,
+while keeping igraph's graph structure and algorithms available underneath.
 
-`ugraph` builds on [igraph](https://igraph.org/) to provide a powerful way to define and work with custom node and link types in your graphs. This package is ideal for those who need more than just graph structure—it empowers you to combine graph data with rich information via Python dataclasses, and comes with built-in support for JSON storage and 3D visualizations.
+Use it when a graph is part of your domain model—not merely an intermediate data structure—and raw
+vertex and edge attribute dictionaries would hide too much meaning.
 
-_Because your graphs aren't just for you_  
-*(igraph → ugraph)*
+In OpenBus, for example, a timetable network represents railway events as nodes and operational
+activities or constraints as directed links. Its network subclass then adds timetable-specific
+validation and transformations; `ugraph` supplies the reusable typed graph machinery.
 
----
+## What it provides
 
-### Why ugraph?
+- typed node, link, and network base classes;
+- directed graph construction, mutation, filtering, and component operations;
+- direct access to the underlying `igraph.Graph` for graph algorithms;
+- JSON round-tripping for dataclass-based networks;
+- basic debugging plots and Plotly-based 3D visualization.
 
-Graphs often represent more than their edges and nodes—they carry data, behaviors, and relationships that need to be understood in context. `ugraph` bridges this gap by enabling:
-
-- **Custom node and link classes**: Add type-safe attributes and behaviors to your graph elements.
-- **Data serialization**: Easily save and load your graphs in JSON format for persistence and sharing.
-- **3D visualization**: Render interactive, browser-based 3D visualizations in HTML using Plotly.
-
-With `ugraph`, your graphs are as **understandable** and **maintainable** as the data they represent.
-
----
-
-### Features at a Glance
-
-- **Custom Classes**: Define your nodes and links as Python dataclasses, allowing for type hints, IDE autocompletion, and type checking.
-- **Serialization**: Store and reload your networks seamlessly using JSON files.
-- **Interactive Visualization**: Generate 3D plots of your graphs in HTML for better insights and presentation.
-
----
-
-### Disclaimer
-
-`ugraph` is not intended for creating graph figures or visualizations (e.g., bar charts, scatter plots). It is a tool for working with graph data structures (nodes and links) and enhancing their usability.
-
----
-
-### Installation
-
-Install `ugraph` using pip:
+## Installation
 
 ```bash
 pip install ugraph
 ```
 
-(if you need igraph's cairo-based plotting, use `pip install ugraph[cairo]`)
+Use `pip install ugraph[cairo]` if you need igraph's Cairo-based plotting support.
 
----
+## Quick start
 
-### Quick Start
+This small event-activity network follows the same pattern as OpenBus's `TimeTableNetwork`, but
+leaves out the railway-specific detail:
 
-`ugraph` works similarly to `igraph`, with the added flexibility of custom node and link types. You can define attributes like coordinates, IDs, or any other domain-specific data in a type-safe and Pythonic way.
+```python
+from dataclasses import dataclass
 
-Explore usage examples in the [examples directory](https://github.com/WonJayne/ugraph/tree/main/src/usage), or start with a [minimal example](https://github.com/WonJayne/ugraph/tree/main/src/usage/minimal_example.py).
+from ugraph import (
+    BaseLinkType,
+    BaseNodeType,
+    EndNodeIdPair,
+    LinkABC,
+    MutableNetworkABC,
+    NodeABC,
+    NodeId,
+    ThreeDCoordinates,
+)
 
-### Documentation
 
-For an extended introduction and code snippets, see [docs/getting_started.md](./docs/getting_started.md).
+class EventType(BaseNodeType):
+    ARRIVAL = 0
+    DEPARTURE = 1
 
----
 
-### Credits
+class ActivityType(BaseLinkType):
+    DWELL = 0
 
-This project builds upon the excellent [igraph](https://igraph.org/) library. We acknowledge and thank the igraph community for their foundational work.
 
----
+@dataclass(frozen=True, slots=True)
+class Event(NodeABC[EventType]):
+    node_type: EventType
+    station: str
 
-### License
 
-See the [LICENSE](LICENSE) file for rights and limitations (MIT).
+@dataclass(frozen=True, slots=True)
+class Activity(LinkABC[ActivityType]):
+    link_type: ActivityType
+    duration_minutes: int
 
+
+class EventActivityNetwork(
+    MutableNetworkABC[Event, Activity, EventType, ActivityType]
+):
+    def is_acyclic(self) -> bool:
+        return self.underlying_digraph.is_dag()
+
+
+arrival = Event(
+    node_id=NodeId("arrival:central"),
+    coordinates=ThreeDCoordinates(0, 0, 0),
+    node_type=EventType.ARRIVAL,
+    station="Central",
+)
+departure = Event(
+    node_id=NodeId("departure:central"),
+    coordinates=ThreeDCoordinates(1, 0, 0),
+    node_type=EventType.DEPARTURE,
+    station="Central",
+)
+
+network = EventActivityNetwork.create_new(
+    nodes=(arrival, departure),
+    links=((
+        EndNodeIdPair((arrival.node_id, departure.node_id)),
+        Activity(ActivityType.DWELL, duration_minutes=2),
+    ),),
+)
+
+assert network.is_acyclic()
+assert network.n_count == 2
+assert network.l_count == 1
+```
+
+The important pattern is the separation of responsibilities: dataclasses describe domain objects,
+the network subclass holds domain operations and validation, and igraph handles generic graph
+algorithms.
+
+For serialization, mutation, visualization, and further examples, see the
+[getting-started guide](docs/getting_started.md) and the
+[example sources](https://github.com/WonJayne/ugraph/tree/main/src/usage).
+
+## Scope
+
+`ugraph` supports directed graphs with typed domain objects. It is not a general charting library or
+a replacement for igraph; it deliberately builds on igraph.
+
+## License
+
+MIT; see [LICENSE](LICENSE).

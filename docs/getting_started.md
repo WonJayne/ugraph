@@ -1,88 +1,103 @@
-# Getting Started with `ugraph`
+# Getting started with `ugraph`
 
-`ugraph` extends [`igraph`](https://igraph.org/) to let you store meaning alongside your graph structure. This short guide introduces the main pieces of the library and shows how to begin creating your own networks.
+`ugraph` combines domain-specific Python dataclasses with a directed `igraph.Graph`. The
+[README](../README.md) contains a complete minimal example; this guide shows the operations that
+usually come next.
 
-## Installation
+## The model
 
-```bash
-pip install ugraph
-# for plotting support
-pip install ugraph[plotting]
-```
+A `ugraph` model has three parts:
 
-## Repository Layout
+1. a `NodeABC` subclass containing a stable `NodeId`, 3D coordinates, a node type, and domain data;
+2. a `LinkABC` subclass containing a link type and domain data;
+3. an `ImmutableNetworkABC` or `MutableNetworkABC` subclass containing domain-level operations and
+   validation.
 
-```
-ugraph/
-├── src/
-│   ├── ugraph/       # core library
-│   ├── usage/        # examples
-│   └── test_ugraph/  # unit tests
-```
-- **`src/ugraph`** contains the abstract base classes for nodes, links and networks.
-- **`src/usage`** offers minimal and domain-specific examples such as the `StateNetwork` demo.
-- **`src/test_ugraph`** holds the test suite which also doubles as usage samples.
+The network stores the typed objects on an underlying `igraph.Graph`. Use the `ugraph` API for typed
+access and `network.underlying_digraph` when an igraph algorithm is the clearest tool.
 
-## Defining Custom Nodes and Links
+## Constructing and inspecting a network
 
-Graph elements are defined as dataclasses that derive from the abstract base classes. A minimal example:
+Create a mutable network in one step:
 
 ```python
-from dataclasses import dataclass
-from enum import Enum, unique
-from ugraph import NodeABC, LinkABC, MutableNetworkABC
-
-@unique
-class ExampleNodeType(Enum):
-    EXAMPLE = 0
-
-@dataclass(frozen=True, slots=True)
-class ExampleNode(NodeABC[ExampleNodeType]):
-    node_type: ExampleNodeType
-    value: int
-
-@unique
-class ExampleLinkType(Enum):
-    EXAMPLE = 0
-
-@dataclass(frozen=True, slots=True)
-class ExampleLink(LinkABC[ExampleLinkType]):
-    link_type: ExampleLinkType
-
-class ExampleNetwork(MutableNetworkABC[ExampleNode, ExampleLink, ExampleNodeType, ExampleLinkType]):
-    pass
+network = EventActivityNetwork.create_new(
+    nodes=(arrival, departure),
+    links=((EndNodeIdPair((arrival.node_id, departure.node_id)), dwell),),
+)
 ```
 
-You can then create nodes, add them to a network, and serialize the result:
+The main read APIs are:
 
 ```python
-n = ExampleNetwork()
-node_a = ExampleNode(id=0, coordinates=(0, 0, 0), node_type=ExampleNodeType.EXAMPLE, value=42)
-node_b = ExampleNode(id=1, coordinates=(1, 0, 0), node_type=ExampleNodeType.EXAMPLE, value=7)
-link = ExampleLink(link_type=ExampleLinkType.EXAMPLE)
-
-n.add_nodes([node_a, node_b])
-n.add_links([((node_a.id, node_b.id), link)])
-
-n.write_json("ExampleNetwork.json")
+network.all_nodes
+network.all_links
+network.node_ids
+network.iter_links_with_end_nodes()
+network.neighbors(arrival.node_id, mode="out")
+network.weak_components()
 ```
+
+For a subset, use node IDs or indices:
+
+```python
+station_view = network.sub_network((arrival.node_id, departure.node_id))
+```
+
+`MutableNetworkABC` additionally supports `add_nodes`, `add_links`, replacement, deletion, and
+type-based filtering. `copy()` returns an independent graph structure containing the same immutable
+node and link objects.
+
+## Adding domain behavior
+
+Keep domain rules on the network subclass. This is the central pattern used by OpenBus's timetable
+networks:
+
+```python
+class EventActivityNetwork(
+    MutableNetworkABC[Event, Activity, EventType, ActivityType]
+):
+    def validate_consistency(self) -> bool:
+        if not self.underlying_digraph.is_dag():
+            raise ValueError("Event-activity network must be acyclic")
+        return True
+```
+
+This keeps generic graph mechanics in `ugraph` and domain semantics in the consuming package.
+
+## JSON round-tripping
+
+Dataclass-based networks can be written and reconstructed with their concrete node, link, and
+network types:
+
+```python
+from pathlib import Path
+
+path = Path("example.EventActivityNetwork.json")
+network.write_json(path)
+loaded = EventActivityNetwork.read_json(path)
+```
+
+The file name must end in `<NetworkClass>.json`. The involved classes must remain importable under
+the module names stored in the JSON document.
 
 ## Visualization
 
-With the optional `plotting` extra you can display your graphs in 3‑D using Plotly:
+For a quick structural debugging image:
 
 ```python
-from ugraph.plot import add_3d_ugraph_to_figure
-import plotly.graph_objects as go
-
-fig = go.Figure()
-add_3d_ugraph_to_figure(fig, n)
-fig.show()
+network.debug_plot("network.png")
 ```
 
-## Learning More
+For interactive 3D output, use the helpers under `ugraph.plot`. Node coordinates determine their
+positions; a `ColorMap` maps node and link types to colors. See
+[`src/usage/minimal_example.py`](../src/usage/minimal_example.py) for a complete plotting example.
 
-- Browse the [`src/usage`](https://github.com/WonJayne/ugraph/tree/main/src/usage) examples for ready-to-run scripts.
-- Inspect the test suite under [`src/test_ugraph`](https://github.com/WonJayne/ugraph/tree/main/src/test_ugraph) for more advanced scenarios.
+## Further examples
 
-`ugraph` is designed to grow with your needs—extend the base classes, validate custom topologies and serialize your data for easy sharing.
+- [`src/usage/minimal_example.py`](../src/usage/minimal_example.py) demonstrates construction,
+  serialization, debugging, and 3D plotting.
+- [`src/usage/state_network/`](../src/usage/state_network/) demonstrates domain-specific network
+  reductions and topology validation.
+- [`src/test_ugraph/`](../src/test_ugraph/) contains executable integration and serialization
+  examples.
